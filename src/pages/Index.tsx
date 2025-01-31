@@ -9,8 +9,8 @@ import { WagmiConfig, useAccount, useConnect, useDisconnect } from 'wagmi';
 import { mainnet, arbitrum, optimism, polygon } from 'wagmi/chains';
 import { supabase } from "@/integrations/supabase/client";
 
-// 1. Get projectId from WalletConnect Cloud - this is a demo ID, replace with your own
-const projectId = '3fbb6bba6f1de962d911bb5b5c9dba88';
+// 1. Get projectId from WalletConnect Cloud
+const projectId = 'a9fd0615ede0b1e448b9c0084c138b83';
 
 // 2. Create wagmiConfig
 const metadata = {
@@ -21,7 +21,11 @@ const metadata = {
 };
 
 const chains = [mainnet, arbitrum, optimism, polygon];
-const wagmiConfig = defaultWagmiConfig({ projectId, metadata });
+const wagmiConfig = defaultWagmiConfig({ 
+  chains,
+  projectId, 
+  metadata 
+});
 
 // 3. Create modal
 createWeb3Modal({
