@@ -8,6 +8,7 @@ import { createWeb3Modal, defaultWagmiConfig } from '@web3modal/wagmi/react';
 import { WagmiConfig, useAccount, useConnect, useDisconnect } from 'wagmi';
 import { mainnet, arbitrum, optimism, polygon } from 'wagmi/chains';
 import { supabase } from "@/integrations/supabase/client";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 // 1. Get projectId from WalletConnect Cloud
 const projectId = 'a9fd0615ede0b1e448b9c0084c138b83';
@@ -46,6 +47,7 @@ function WalletConnection() {
   const { disconnect } = useDisconnect();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
     const saveWalletConnection = async () => {
@@ -75,6 +77,7 @@ function WalletConnection() {
             title: "Wallet Connected",
             description: "Your wallet has been successfully connected.",
           });
+          setIsDialogOpen(false);
         } catch (error) {
           console.error('Error saving wallet connection:', error);
           toast({
@@ -108,25 +111,40 @@ function WalletConnection() {
   return (
     <div className="flex flex-col gap-4">
       {!isConnected ? (
-        <>
-          <Alert>
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              Connect your wallet to access recehan site
-            </AlertDescription>
-          </Alert>
-          {connectors.map((connector) => (
-            <Button
-              key={connector.id}
-              onClick={() => handleConnect(connector)}
-              disabled={!connector.ready || isLoading}
-              className="w-full"
-            >
-              Connect {connector.name}
-              {isLoading && " (Connecting...)"}
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="w-full">
+              Connect Wallet
             </Button>
-          ))}
-        </>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Connect Your Wallet</DialogTitle>
+              <DialogDescription>
+                Choose a wallet to connect to our application
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-col gap-4 mt-4">
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Connect your wallet to access recehan site
+                </AlertDescription>
+              </Alert>
+              {connectors.map((connector) => (
+                <Button
+                  key={connector.id}
+                  onClick={() => handleConnect(connector)}
+                  disabled={!connector.ready || isLoading}
+                  className="w-full"
+                >
+                  Connect {connector.name}
+                  {isLoading && " (Connecting...)"}
+                </Button>
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog>
       ) : (
         <div className="space-y-4">
           <Alert>
