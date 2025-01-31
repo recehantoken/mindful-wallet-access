@@ -112,7 +112,7 @@ function WalletConnection() {
           <Alert>
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              Connect your wallet to access the application
+              Connect your wallet to access recehan site
             </AlertDescription>
           </Alert>
           {connectors.map((connector) => (
@@ -150,7 +150,7 @@ const Index = () => {
         <CardHeader>
           <CardTitle>Web3 Login</CardTitle>
           <CardDescription>
-            Connect your wallet to access the application
+            Connect your wallet to access recehan site
           </CardDescription>
         </CardHeader>
         <CardContent>
