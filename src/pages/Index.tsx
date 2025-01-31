@@ -20,15 +20,21 @@ const metadata = {
   icons: ['https://avatars.githubusercontent.com/u/37784886']
 };
 
-const chains = [mainnet, arbitrum, optimism, polygon] as const;
-const wagmiConfig = defaultWagmiConfig({
-  chains,
-  projectId,
-  metadata,
-});
+const chains = [mainnet, arbitrum, optimism, polygon];
+const wagmiConfig = defaultWagmiConfig({ projectId, metadata });
 
 // 3. Create modal
-createWeb3Modal({ wagmiConfig, projectId, chains });
+createWeb3Modal({
+  wagmiConfig,
+  projectId,
+  defaultChain: mainnet,
+  featuredWalletIds: [],
+  tokens: {
+    [mainnet.id]: {
+      address: '0x0000000000000000000000000000000000000000'
+    }
+  }
+});
 
 function WalletConnection() {
   const { address, isConnected } = useAccount();
