@@ -9,7 +9,33 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      wallet_connections: {
+        Row: {
+          created_at: string
+          id: string
+          last_connected_at: string
+          user_id: string | null
+          wallet_address: string
+          wallet_type: Database["public"]["Enums"]["wallet_type"]
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_connected_at?: string
+          user_id?: string | null
+          wallet_address: string
+          wallet_type?: Database["public"]["Enums"]["wallet_type"]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_connected_at?: string
+          user_id?: string | null
+          wallet_address?: string
+          wallet_type?: Database["public"]["Enums"]["wallet_type"]
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +44,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      wallet_type: "metamask" | "trustwallet" | "other"
     }
     CompositeTypes: {
       [_ in never]: never
