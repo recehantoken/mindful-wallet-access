@@ -2,15 +2,15 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { AlertCircle } from "lucide-react";
 import { createWeb3Modal, defaultWagmiConfig } from '@web3modal/wagmi/react';
 import { WagmiConfig, useAccount, useConnect, useDisconnect } from 'wagmi';
-import { mainnet } from 'wagmi/chains';
+import { mainnet, arbitrum, optimism, polygon } from 'wagmi/chains';
 import { supabase } from "@/integrations/supabase/client";
 
-// 1. Get projectId from WalletConnect Cloud
-const projectId = 'YOUR_WALLET_CONNECT_PROJECT_ID';
+// 1. Get projectId from WalletConnect Cloud - this is a demo ID, replace with your own
+const projectId = '3fbb6bba6f1de962d911bb5b5c9dba88';
 
 // 2. Create wagmiConfig
 const metadata = {
@@ -20,8 +20,12 @@ const metadata = {
   icons: ['https://avatars.githubusercontent.com/u/37784886']
 };
 
-const chains = [mainnet];
-const wagmiConfig = defaultWagmiConfig({ chains, projectId, metadata });
+const chains = [mainnet, arbitrum, optimism, polygon] as const;
+const wagmiConfig = defaultWagmiConfig({
+  chains,
+  projectId,
+  metadata,
+});
 
 // 3. Create modal
 createWeb3Modal({ wagmiConfig, projectId, chains });
@@ -37,10 +41,16 @@ function WalletConnection() {
     const saveWalletConnection = async () => {
       if (isConnected && address) {
         try {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) {
+            console.error('No authenticated user found');
+            return;
+          }
+
           const { error } = await supabase
             .from('wallet_connections')
             .upsert({
-              user_id: (await supabase.auth.getUser()).data.user?.id,
+              user_id: user.id,
               wallet_address: address,
               wallet_type: 'metamask',
               last_connected_at: new Date().toISOString()
@@ -67,7 +77,7 @@ function WalletConnection() {
     };
 
     saveWalletConnection();
-  }, [isConnected, address]);
+  }, [isConnected, address, toast]);
 
   const handleConnect = async (connector: any) => {
     try {
