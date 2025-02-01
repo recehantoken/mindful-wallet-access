@@ -9,9 +9,24 @@ import { WagmiConfig, useAccount, useConnect, useDisconnect } from 'wagmi';
 import { mainnet, arbitrum, optimism, polygon } from 'wagmi/chains';
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Core } from '@walletconnect/core';
+import { WalletKit } from '@reown/walletkit';
 
-// 1. Get projectId from WalletConnect Cloud
-const projectId = 'a9fd0615ede0b1e448b9c0084c138b83';
+// Initialize WalletConnect Core
+const core = new Core({
+  projectId: 'a9fd0615ede0b1e448b9c0084c138b83'
+});
+
+// Define metadata for WalletKit
+const walletKitMetadata = {
+  name: 'recehan-signon',
+  description: 'AppKit Example',
+  url: window.location.origin, // Dynamically use the current origin
+  icons: ['https://assets.reown.com/reown-profile-pic.png']
+};
+
+// Initialize WalletKit (we'll do this in a useEffect since it's async)
+let walletKit: any = null;
 
 // 2. Create wagmiConfig
 const metadata = {
@@ -24,14 +39,14 @@ const metadata = {
 const chains = [mainnet, arbitrum, optimism, polygon] as const;
 const wagmiConfig = defaultWagmiConfig({ 
   chains,
-  projectId, 
+  projectId: 'a9fd0615ede0b1e448b9c0084c138b83', 
   metadata 
 });
 
 // 3. Create modal
 createWeb3Modal({
   wagmiConfig,
-  projectId,
+  projectId: 'a9fd0615ede0b1e448b9c0084c138b83',
   defaultChain: mainnet,
   featuredWalletIds: [],
   tokens: {
@@ -48,6 +63,23 @@ function WalletConnection() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  useEffect(() => {
+    // Initialize WalletKit
+    const initWalletKit = async () => {
+      try {
+        walletKit = await WalletKit.init({
+          core,
+          metadata: walletKitMetadata
+        });
+        console.log('WalletKit initialized successfully');
+      } catch (error) {
+        console.error('Failed to initialize WalletKit:', error);
+      }
+    };
+
+    initWalletKit();
+  }, []);
 
   useEffect(() => {
     const saveWalletConnection = async () => {
