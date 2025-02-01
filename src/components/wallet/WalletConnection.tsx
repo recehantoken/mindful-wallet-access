@@ -13,16 +13,28 @@ export function WalletConnection() {
   const { disconnect } = useDisconnect();
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [hasMetaMask, setHasMetaMask] = useState(false);
+  const [wallets, setWallets] = useState({
+    hasMetaMask: false,
+    hasWalletConnect: false,
+    isMobile: false
+  });
 
   useEffect(() => {
-    const checkMetaMask = () => {
+    const checkWallets = () => {
+      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
       const isMetaMaskInstalled = typeof window !== 'undefined' && Boolean(window?.ethereum?.isMetaMask);
+      
+      console.log('Device type:', isMobileDevice ? 'Mobile' : 'Desktop');
       console.log('MetaMask installed:', isMetaMaskInstalled);
-      setHasMetaMask(isMetaMaskInstalled);
+      
+      setWallets({
+        hasMetaMask: isMetaMaskInstalled,
+        hasWalletConnect: true, // WalletConnect is always available as a fallback
+        isMobile: isMobileDevice
+      });
     };
 
-    checkMetaMask();
+    checkWallets();
     initializeWalletKit();
   }, []);
 
@@ -75,7 +87,7 @@ export function WalletConnection() {
         <WalletConnectionDialog 
           isOpen={isDialogOpen}
           onOpenChange={setIsDialogOpen}
-          hasMetaMask={hasMetaMask}
+          wallets={wallets}
         />
       ) : (
         <div className="space-y-4">

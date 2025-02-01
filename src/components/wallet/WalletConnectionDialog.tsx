@@ -9,10 +9,14 @@ import { useState } from "react";
 interface WalletConnectionDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  hasMetaMask: boolean;
+  wallets: {
+    hasMetaMask: boolean;
+    hasWalletConnect: boolean;
+    isMobile: boolean;
+  };
 }
 
-export function WalletConnectionDialog({ isOpen, onOpenChange, hasMetaMask }: WalletConnectionDialogProps) {
+export function WalletConnectionDialog({ isOpen, onOpenChange, wallets }: WalletConnectionDialogProps) {
   const { connectAsync, connectors } = useConnect();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -34,6 +38,26 @@ export function WalletConnectionDialog({ isOpen, onOpenChange, hasMetaMask }: Wa
     }
   };
 
+  const getWalletStatus = (connectorName: string) => {
+    if (connectorName === 'MetaMask') {
+      if (wallets.isMobile && !wallets.hasMetaMask) {
+        return "Install MetaMask Mobile";
+      }
+      return wallets.hasMetaMask ? "Connect MetaMask" : "Install MetaMask";
+    }
+    if (connectorName === 'WalletConnect') {
+      return "Connect with WalletConnect";
+    }
+    return `Connect ${connectorName}`;
+  };
+
+  const isConnectorDisabled = (connectorName: string) => {
+    if (connectorName === 'MetaMask') {
+      return !wallets.hasMetaMask && !wallets.isMobile;
+    }
+    return false;
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
@@ -52,22 +76,21 @@ export function WalletConnectionDialog({ isOpen, onOpenChange, hasMetaMask }: Wa
           <Alert>
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              {hasMetaMask 
-                ? "MetaMask is installed and ready to connect"
-                : "MetaMask is not installed. Please install MetaMask to continue"}
+              {wallets.isMobile 
+                ? "Mobile device detected - you can use MetaMask mobile app or WalletConnect"
+                : wallets.hasMetaMask 
+                  ? "MetaMask is installed and ready to connect"
+                  : "MetaMask is not installed. You can install it or use WalletConnect"}
             </AlertDescription>
           </Alert>
           {connectors.map((connector) => (
             <Button
               key={connector.id}
               onClick={() => handleConnect(connector)}
-              disabled={!connector.ready || isLoading || (connector.name === 'MetaMask' && !hasMetaMask)}
+              disabled={isLoading || isConnectorDisabled(connector.name)}
               className="w-full"
             >
-              Connect {connector.name}
-              {!connector.ready && " (not ready)"}
-              {connector.name === 'MetaMask' && !hasMetaMask && " (not installed)"}
-              {isLoading && connector.ready && " (Connecting...)"}
+              {isLoading && connector.ready ? "Connecting..." : getWalletStatus(connector.name)}
             </Button>
           ))}
         </div>
