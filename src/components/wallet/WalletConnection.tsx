@@ -15,8 +15,16 @@ export function WalletConnection() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [hasMetaMask, setHasMetaMask] = useState(false);
 
   useEffect(() => {
+    const checkMetaMask = () => {
+      const isMetaMaskInstalled = typeof window !== 'undefined' && Boolean(window.ethereum?.isMetaMask);
+      console.log('MetaMask installed:', isMetaMaskInstalled);
+      setHasMetaMask(isMetaMaskInstalled);
+    };
+
+    checkMetaMask();
     initializeWalletKit();
   }, []);
 
@@ -66,6 +74,7 @@ export function WalletConnection() {
   const handleConnect = async (connector: any) => {
     try {
       setIsLoading(true);
+      console.log('Attempting to connect with connector:', connector.name);
       await connectAsync({ connector });
     } catch (error) {
       console.error('Connection error:', error);
@@ -99,18 +108,22 @@ export function WalletConnection() {
               <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  Connect your wallet to access recehan site
+                  {hasMetaMask 
+                    ? "MetaMask is installed and ready to connect"
+                    : "MetaMask is not installed. Please install MetaMask to continue"}
                 </AlertDescription>
               </Alert>
               {connectors.map((connector) => (
                 <Button
                   key={connector.id}
                   onClick={() => handleConnect(connector)}
-                  disabled={!connector.ready || isLoading}
+                  disabled={!connector.ready || isLoading || (connector.name === 'MetaMask' && !hasMetaMask)}
                   className="w-full"
                 >
                   Connect {connector.name}
-                  {isLoading && " (Connecting...)"}
+                  {!connector.ready && " (not ready)"}
+                  {connector.name === 'MetaMask' && !hasMetaMask && " (not installed)"}
+                  {isLoading && connector.ready && " (Connecting...)"}
                 </Button>
               ))}
             </div>
