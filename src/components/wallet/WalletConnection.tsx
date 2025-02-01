@@ -19,7 +19,8 @@ export function WalletConnection() {
 
   useEffect(() => {
     const checkMetaMask = () => {
-      const isMetaMaskInstalled = typeof window !== 'undefined' && Boolean(window.ethereum?.isMetaMask);
+      // Now TypeScript knows about window.ethereum
+      const isMetaMaskInstalled = typeof window !== 'undefined' && Boolean(window?.ethereum?.isMetaMask);
       console.log('MetaMask installed:', isMetaMaskInstalled);
       setHasMetaMask(isMetaMaskInstalled);
     };
