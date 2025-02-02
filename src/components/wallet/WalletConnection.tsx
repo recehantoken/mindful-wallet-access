@@ -6,6 +6,7 @@ import { useAccount, useDisconnect } from 'wagmi';
 import { supabase } from "@/integrations/supabase/client";
 import { WalletConnectionDialog } from "./WalletConnectionDialog";
 import { initializeWalletKit } from "./WalletConfig";
+import { Wallet } from "lucide-react";
 
 type WalletInfo = {
   name: string;
@@ -94,11 +95,20 @@ export function WalletConnection() {
   return (
     <div className="flex flex-col gap-4">
       {!isConnected ? (
-        <WalletConnectionDialog 
-          isOpen={isDialogOpen}
-          onOpenChange={setIsDialogOpen}
-          wallets={wallets}
-        />
+        <>
+          <Button 
+            onClick={() => setIsDialogOpen(true)}
+            className="w-full flex items-center justify-center gap-2"
+          >
+            <Wallet className="h-5 w-5" />
+            Connect Wallet
+          </Button>
+          <WalletConnectionDialog 
+            isOpen={isDialogOpen}
+            onOpenChange={setIsDialogOpen}
+            wallets={wallets}
+          />
+        </>
       ) : (
         <div className="space-y-4">
           <Alert>
