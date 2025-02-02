@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
-import { useConnect, useNetwork, useSwitchNetwork } from 'wagmi';
+import { useConnect, useChainId, useSwitchChain } from 'wagmi';
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { polygon } from 'wagmi/chains';
@@ -19,8 +19,8 @@ interface WalletConnectionDialogProps {
 
 export function WalletConnectionDialog({ isOpen, onOpenChange, wallets }: WalletConnectionDialogProps) {
   const { connectAsync, connectors } = useConnect();
-  const { chain } = useNetwork();
-  const { switchNetworkAsync } = useSwitchNetwork();
+  const chainId = useChainId();
+  const { switchChainAsync } = useSwitchChain();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -31,9 +31,9 @@ export function WalletConnectionDialog({ isOpen, onOpenChange, wallets }: Wallet
       await connectAsync({ connector });
       
       // After successful connection, switch to Polygon if not already on it
-      if (chain?.id !== polygon.id) {
+      if (chainId !== polygon.id) {
         console.log('Switching to Polygon network...');
-        await switchNetworkAsync?.(polygon.id);
+        await switchChainAsync({ chainId: polygon.id });
       }
     } catch (error) {
       console.error('Connection error:', error);
