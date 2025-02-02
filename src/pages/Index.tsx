@@ -12,7 +12,7 @@ const Index = () => {
           <div className="flex items-center justify-center gap-2 mb-2">
             <Wallet className="h-8 w-8 text-primary" />
           </div>
-          <CardTitle>Web3 Login</CardTitle>
+          <CardTitle>Recehan Web3 Login</CardTitle>
           <CardDescription>
             Connect your wallet to access recehan site
           </CardDescription>
