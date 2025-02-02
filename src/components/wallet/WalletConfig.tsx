@@ -1,7 +1,7 @@
 import { Core } from '@walletconnect/core';
 import { WalletKit } from '@reown/walletkit';
 import { createWeb3Modal, defaultWagmiConfig } from '@web3modal/wagmi/react';
-import { mainnet, arbitrum, optimism, polygon } from 'wagmi/chains';
+import { polygon } from 'wagmi/chains';
 
 // Initialize WalletConnect Core
 const core = new Core({
@@ -27,7 +27,8 @@ const metadata = {
   icons: ['https://avatars.githubusercontent.com/u/37784886']
 };
 
-const chains = [mainnet, arbitrum, optimism, polygon] as const;
+// Only use Polygon chain
+const chains = [polygon] as const;
 
 export const wagmiConfig = defaultWagmiConfig({ 
   chains,
@@ -35,14 +36,14 @@ export const wagmiConfig = defaultWagmiConfig({
   metadata 
 });
 
-// Create modal
+// Create modal with only Polygon chain
 createWeb3Modal({
   wagmiConfig,
   projectId: 'a9fd0615ede0b1e448b9c0084c138b83',
-  defaultChain: mainnet,
+  defaultChain: polygon,
   featuredWalletIds: [],
   tokens: {
-    [mainnet.id]: {
+    [polygon.id]: {
       address: '0x0000000000000000000000000000000000000000'
     }
   }

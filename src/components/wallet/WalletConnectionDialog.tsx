@@ -2,9 +2,10 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
-import { useConnect } from 'wagmi';
+import { useConnect, useNetwork, useSwitchNetwork } from 'wagmi';
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { polygon } from 'wagmi/chains';
 
 interface WalletConnectionDialogProps {
   isOpen: boolean;
@@ -18,6 +19,8 @@ interface WalletConnectionDialogProps {
 
 export function WalletConnectionDialog({ isOpen, onOpenChange, wallets }: WalletConnectionDialogProps) {
   const { connectAsync, connectors } = useConnect();
+  const { chain } = useNetwork();
+  const { switchNetworkAsync } = useSwitchNetwork();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -26,6 +29,12 @@ export function WalletConnectionDialog({ isOpen, onOpenChange, wallets }: Wallet
       setIsLoading(true);
       console.log('Attempting to connect with connector:', connector.name);
       await connectAsync({ connector });
+      
+      // After successful connection, switch to Polygon if not already on it
+      if (chain?.id !== polygon.id) {
+        console.log('Switching to Polygon network...');
+        await switchNetworkAsync?.(polygon.id);
+      }
     } catch (error) {
       console.error('Connection error:', error);
       toast({
@@ -58,6 +67,9 @@ export function WalletConnectionDialog({ isOpen, onOpenChange, wallets }: Wallet
     return false;
   };
 
+  // Filter out the injected connector
+  const filteredConnectors = connectors.filter(connector => connector.name !== 'Injected');
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
@@ -83,7 +95,7 @@ export function WalletConnectionDialog({ isOpen, onOpenChange, wallets }: Wallet
                   : "MetaMask is not installed. You can install it or use WalletConnect"}
             </AlertDescription>
           </Alert>
-          {connectors.map((connector) => (
+          {filteredConnectors.map((connector) => (
             <Button
               key={connector.id}
               onClick={() => handleConnect(connector)}
