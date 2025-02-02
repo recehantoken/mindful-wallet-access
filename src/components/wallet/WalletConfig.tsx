@@ -1,10 +1,8 @@
 import { defaultWagmiConfig } from '@web3modal/wagmi/react';
 import { createWeb3Modal } from '@web3modal/wagmi/react';
-import { walletConnectProvider, EIP6963Connector } from '@web3modal/wagmi';
 import { polygon } from 'wagmi/chains';
-import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
-import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
-import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
+import { http, createConfig } from 'wagmi';
+import { injected, walletConnect } from 'wagmi/connectors';
 
 const projectId = 'a9fd0615ede0b1e448b9c0084c138b83';
 const chains = [polygon];
@@ -23,14 +21,17 @@ export const initializeWalletKit = () => {
 export const wagmiConfig = defaultWagmiConfig({ 
   chains,
   projectId,
-  metadata
+  metadata,
+  transports: {
+    [polygon.id]: http()
+  }
 });
 
 // Create modal with only Polygon chain
 createWeb3Modal({
   wagmiConfig,
   projectId,
-  chains,
+  defaultChain: polygon,
   themeMode: 'light',
   themeVariables: {
     '--w3m-font-family': 'Inter, sans-serif',
@@ -39,20 +40,10 @@ createWeb3Modal({
 });
 
 export const connectors = [
-  new MetaMaskConnector({ chains }),
-  new WalletConnectConnector({
-    chains,
-    options: {
-      projectId,
-      metadata,
-      showQrModal: true
-    }
-  }),
-  new CoinbaseWalletConnector({
-    chains,
-    options: {
-      appName: metadata.name,
-    }
-  }),
-  new EIP6963Connector({ chains })
+  injected(),
+  walletConnect({ 
+    projectId,
+    metadata,
+    showQrModal: true 
+  })
 ];
