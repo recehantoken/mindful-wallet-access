@@ -2,22 +2,23 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
-import { AlertCircle } from "lucide-react";
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { useAccount, useDisconnect } from 'wagmi';
 import { supabase } from "@/integrations/supabase/client";
 import { WalletConnectionDialog } from "./WalletConnectionDialog";
 import { initializeWalletKit } from "./WalletConfig";
+
+type WalletInfo = {
+  name: string;
+  logo: string;
+  ready: boolean;
+}
 
 export function WalletConnection() {
   const { address, isConnected } = useAccount();
   const { disconnect } = useDisconnect();
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [wallets, setWallets] = useState({
-    hasMetaMask: false,
-    hasWalletConnect: false,
-    isMobile: false
-  });
+  const [wallets, setWallets] = useState<WalletInfo[]>([]);
 
   useEffect(() => {
     const checkWallets = () => {
@@ -27,11 +28,20 @@ export function WalletConnection() {
       console.log('Device type:', isMobileDevice ? 'Mobile' : 'Desktop');
       console.log('MetaMask installed:', isMetaMaskInstalled);
       
-      setWallets({
-        hasMetaMask: isMetaMaskInstalled,
-        hasWalletConnect: true, // WalletConnect is always available as a fallback
-        isMobile: isMobileDevice
-      });
+      const availableWallets: WalletInfo[] = [
+        {
+          name: 'MetaMask',
+          logo: 'https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/metamask-fox.svg',
+          ready: isMetaMaskInstalled || isMobileDevice
+        },
+        {
+          name: 'WalletConnect',
+          logo: 'https://raw.githubusercontent.com/WalletConnect/walletconnect-assets/master/Logo/Blue%20(Default)/Logo.svg',
+          ready: true // WalletConnect is always available
+        }
+      ];
+
+      setWallets(availableWallets);
     };
 
     checkWallets();

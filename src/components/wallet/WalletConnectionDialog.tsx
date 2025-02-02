@@ -1,17 +1,23 @@
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { useConnect, useChainId, useSwitchChain } from 'wagmi';
 import { useToast } from "@/hooks/use-toast";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { polygon } from 'wagmi/chains';
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 
+interface WalletInfo {
+  name: string;
+  logo: string;
+  ready: boolean;
+}
+
 interface WalletConnectionDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  wallets: { name: string; logo: string; ready: boolean }[];
+  wallets: WalletInfo[];
 }
 
 export function WalletConnectionDialog({ isOpen, onOpenChange, wallets }: WalletConnectionDialogProps) {
@@ -23,7 +29,7 @@ export function WalletConnectionDialog({ isOpen, onOpenChange, wallets }: Wallet
 
   const handleConnect = async (walletName: string) => {
     setIsLoading(true);
-    const connector = connectors.find(c => c.name === walletName);
+    const connector = connectors.find(c => c.name.toLowerCase() === walletName.toLowerCase());
     
     try {
       if (!connector) throw new Error('Connector not found');
@@ -67,7 +73,10 @@ export function WalletConnectionDialog({ isOpen, onOpenChange, wallets }: Wallet
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Connect Wallet</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <img src="/logo.png" alt="Logo" className="h-6 w-6" />
+            Connect Wallet
+          </DialogTitle>
           <DialogDescription>
             Choose your preferred wallet to connect to the application
           </DialogDescription>
