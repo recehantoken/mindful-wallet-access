@@ -3,9 +3,10 @@ import { WalletKit } from '@reown/walletkit';
 import { createWeb3Modal, defaultWagmiConfig } from '@web3modal/wagmi/react';
 import { polygon } from 'wagmi/chains';
 
-// Initialize WalletConnect Core
+// Initialize WalletConnect Core with new cloud URL
 const core = new Core({
-  projectId: 'a9fd0615ede0b1e448b9c0084c138b83'
+  projectId: 'a9fd0615ede0b1e448b9c0084c138b83',
+  relayUrl: 'https://cloud.reown.com/'
 });
 
 // Define metadata for WalletKit
@@ -33,7 +34,8 @@ const chains = [polygon] as const;
 export const wagmiConfig = defaultWagmiConfig({ 
   chains,
   projectId: 'a9fd0615ede0b1e448b9c0084c138b83', 
-  metadata 
+  metadata,
+  relayUrl: 'https://cloud.reown.com/'
 });
 
 // Create modal with only Polygon chain
