@@ -1,11 +1,11 @@
 import { defaultWagmiConfig } from '@web3modal/wagmi/react';
 import { createWeb3Modal } from '@web3modal/wagmi/react';
 import { polygon } from 'wagmi/chains';
-import { http, createConfig } from 'wagmi';
+import { http } from 'wagmi';
 import { injected, walletConnect } from 'wagmi/connectors';
 
 const projectId = 'a9fd0615ede0b1e448b9c0084c138b83';
-const chains = [polygon];
+const chains = [polygon] as const; // Make it a readonly tuple type
 
 const metadata = {
   name: 'Recehan Gold',
