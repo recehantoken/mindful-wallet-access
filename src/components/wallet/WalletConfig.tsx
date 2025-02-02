@@ -34,8 +34,7 @@ const chains = [polygon] as const;
 export const wagmiConfig = defaultWagmiConfig({ 
   chains,
   projectId: 'a9fd0615ede0b1e448b9c0084c138b83', 
-  metadata,
-  relayUrl: 'https://cloud.reown.com/'
+  metadata
 });
 
 // Create modal with only Polygon chain
