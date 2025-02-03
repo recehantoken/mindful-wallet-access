@@ -22,9 +22,13 @@ export function WalletConnection() {
   const [wallets, setWallets] = useState<WalletInfo[]>([]);
 
   useEffect(() => {
-    const checkWallets = () => {
+    const checkWallets = async () => {
       const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      const isMetaMaskInstalled = typeof window !== 'undefined' && Boolean(window?.ethereum?.isMetaMask);
+      
+      // Check if MetaMask is installed
+      const isMetaMaskInstalled = typeof window !== 'undefined' && 
+        typeof window.ethereum !== 'undefined' && 
+        window.ethereum.isMetaMask;
       
       console.log('Device type:', isMobileDevice ? 'Mobile' : 'Desktop');
       console.log('MetaMask installed:', isMetaMaskInstalled);
@@ -38,7 +42,22 @@ export function WalletConnection() {
         {
           name: 'WalletConnect',
           logo: 'https://raw.githubusercontent.com/WalletConnect/walletconnect-assets/master/Logo/Blue%20(Default)/Logo.svg',
-          ready: true // WalletConnect is always available
+          ready: true
+        },
+        {
+          name: 'Ledger',
+          logo: '/lovable-uploads/ac7f6456-e1df-4031-b9ad-ec01163cf25a.png',
+          ready: true
+        },
+        {
+          name: 'Zerion',
+          logo: '/lovable-uploads/ac7f6456-e1df-4031-b9ad-ec01163cf25a.png',
+          ready: true
+        },
+        {
+          name: 'Fireblocks',
+          logo: '/lovable-uploads/ac7f6456-e1df-4031-b9ad-ec01163cf25a.png',
+          ready: true
         }
       ];
 
