@@ -5,7 +5,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useAccount, useDisconnect } from 'wagmi';
 import { supabase } from "@/integrations/supabase/client";
 import { WalletConnectionDialog } from "./WalletConnectionDialog";
-import { initializeWalletKit } from "./WalletConfig";
 import { Wallet } from "lucide-react";
 
 type WalletInfo = {
@@ -67,7 +66,6 @@ export function WalletConnection() {
     };
 
     checkWallets();
-    initializeWalletKit();
   }, []);
 
   useEffect(() => {
