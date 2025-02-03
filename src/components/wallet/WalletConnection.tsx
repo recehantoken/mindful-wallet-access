@@ -1,17 +1,12 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { useAccount, useDisconnect } from 'wagmi';
 import { supabase } from "@/integrations/supabase/client";
 import { WalletConnectionDialog } from "./WalletConnectionDialog";
+import { ConnectedWallet } from "./ConnectedWallet";
 import { Wallet } from "lucide-react";
-
-type WalletInfo = {
-  name: string;
-  logo: string;
-  ready: boolean;
-}
+import { WalletInfo, checkAvailableWallets } from "@/utils/walletUtils";
 
 export function WalletConnection() {
   const { address, isConnected } = useAccount();
@@ -22,46 +17,7 @@ export function WalletConnection() {
 
   useEffect(() => {
     const checkWallets = async () => {
-      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      
-      // Enhanced MetaMask detection
-      const isMetaMaskInstalled = typeof window !== 'undefined' && 
-        typeof window.ethereum !== 'undefined' && 
-        (window.ethereum.isMetaMask || // Check standard MetaMask flag
-         (window.ethereum.providers && // Check for multiple providers
-          window.ethereum.providers.some((provider: any) => provider.isMetaMask)));
-
-      console.log('Device type:', isMobileDevice ? 'Mobile' : 'Desktop');
-      console.log('MetaMask installed:', isMetaMaskInstalled);
-      
-      const availableWallets: WalletInfo[] = [
-        {
-          name: 'MetaMask',
-          logo: 'https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/metamask-fox.svg',
-          ready: isMetaMaskInstalled || isMobileDevice // Enable for mobile or when installed
-        },
-        {
-          name: 'WalletConnect',
-          logo: 'https://raw.githubusercontent.com/WalletConnect/walletconnect-assets/master/Logo/Blue%20(Default)/Logo.svg',
-          ready: true
-        },
-        {
-          name: 'Ledger',
-          logo: '/lovable-uploads/ac7f6456-e1df-4031-b9ad-ec01163cf25a.png',
-          ready: true
-        },
-        {
-          name: 'Zerion',
-          logo: '/lovable-uploads/ac7f6456-e1df-4031-b9ad-ec01163cf25a.png',
-          ready: true
-        },
-        {
-          name: 'Fireblocks',
-          logo: '/lovable-uploads/ac7f6456-e1df-4031-b9ad-ec01163cf25a.png',
-          ready: true
-        }
-      ];
-
+      const availableWallets = checkAvailableWallets();
       setWallets(availableWallets);
     };
 
@@ -129,16 +85,10 @@ export function WalletConnection() {
           />
         </>
       ) : (
-        <div className="space-y-4">
-          <Alert>
-            <AlertDescription>
-              Connected with: {address?.slice(0, 6)}...{address?.slice(-4)}
-            </AlertDescription>
-          </Alert>
-          <Button onClick={() => disconnect()} variant="outline" className="w-full">
-            Disconnect Wallet
-          </Button>
-        </div>
+        <ConnectedWallet 
+          address={address || ''} 
+          onDisconnect={disconnect}
+        />
       )}
     </div>
   );
