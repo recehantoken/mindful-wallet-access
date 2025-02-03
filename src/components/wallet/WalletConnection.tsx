@@ -25,11 +25,13 @@ export function WalletConnection() {
     const checkWallets = async () => {
       const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
       
-      // Check if MetaMask is installed
+      // Enhanced MetaMask detection
       const isMetaMaskInstalled = typeof window !== 'undefined' && 
         typeof window.ethereum !== 'undefined' && 
-        window.ethereum.isMetaMask;
-      
+        (window.ethereum.isMetaMask || // Check standard MetaMask flag
+         (window.ethereum.providers && // Check for multiple providers
+          window.ethereum.providers.some((provider: any) => provider.isMetaMask)));
+
       console.log('Device type:', isMobileDevice ? 'Mobile' : 'Desktop');
       console.log('MetaMask installed:', isMetaMaskInstalled);
       
@@ -37,7 +39,7 @@ export function WalletConnection() {
         {
           name: 'MetaMask',
           logo: 'https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/metamask-fox.svg',
-          ready: isMetaMaskInstalled || isMobileDevice
+          ready: isMetaMaskInstalled || isMobileDevice // Enable for mobile or when installed
         },
         {
           name: 'WalletConnect',
