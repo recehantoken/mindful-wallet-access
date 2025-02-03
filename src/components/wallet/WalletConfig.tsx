@@ -5,13 +5,15 @@ import { http } from 'wagmi';
 import { injected, walletConnect } from 'wagmi/connectors';
 
 const projectId = 'a9fd0615ede0b1e448b9c0084c138b83';
-const chains = [polygon] as const; // Make it a readonly tuple type
+const chains = [polygon] as const;
 
+// Update metadata with all required fields and proper URLs
 const metadata = {
   name: 'Recehan Gold',
   description: 'Connect to Recehan Gold',
-  url: 'https://recehan.gold',
-  icons: ['https://recehan.gold/logo.png']
+  url: window.location.origin, // Dynamically use the current origin
+  icons: [`${window.location.origin}/logo.png`], // Use absolute URL for icons
+  verifyUrl: window.location.origin // Add verify URL
 };
 
 export const initializeWalletKit = () => {
@@ -36,7 +38,8 @@ createWeb3Modal({
   themeVariables: {
     '--w3m-font-family': 'Inter, sans-serif',
     '--w3m-accent': '#FFD700',
-  }
+  },
+  metadata // Pass the metadata here as well
 });
 
 export const connectors = [
