@@ -1,12 +1,13 @@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Wallet, Barcode } from "lucide-react";
 import { useConnect, useChainId, useSwitchChain } from 'wagmi';
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { polygon } from 'wagmi/chains';
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface WalletInfo {
   name: string;
@@ -26,30 +27,35 @@ export function WalletConnectionDialog({ isOpen, onOpenChange, wallets }: Wallet
   const { switchChainAsync } = useSwitchChain();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [showQRCode, setShowQRCode] = useState(false);
+  const [selectedWallet, setSelectedWallet] = useState<string | null>(null);
 
   const handleConnect = async (walletName: string) => {
     setIsLoading(true);
-    const connector = connectors.find(c => c.name.toLowerCase() === walletName.toLowerCase());
+    setSelectedWallet(walletName);
     
     try {
+      const connector = connectors.find(c => c.name.toLowerCase() === walletName.toLowerCase());
       if (!connector) throw new Error('Connector not found');
+      
+      if (walletName.toLowerCase() === 'walletconnect') {
+        setShowQRCode(true);
+        return;
+      }
       
       await connectAsync({ connector });
       
-      // After successful connection, switch to Polygon if not already on it
       if (chainId !== polygon.id) {
         console.log('Switching to Polygon network...');
         await switchChainAsync({ chainId: polygon.id });
       }
 
-      // After successful connection and network switch, redirect based on URL path
       const currentPath = window.location.pathname;
       if (currentPath.includes('login')) {
         window.location.href = 'https://gate.recehan.gold/user/login';
       } else if (currentPath.includes('register')) {
         window.location.href = 'https://gate.recehan.gold/user/register';
       } else {
-        // Default to login if no specific path matches
         window.location.href = 'https://gate.recehan.gold/user/login';
       }
 
@@ -81,24 +87,68 @@ export function WalletConnectionDialog({ isOpen, onOpenChange, wallets }: Wallet
             Choose your preferred wallet to connect to the application
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          {wallets.map((wallet) => (
-            <Button
-              key={wallet.name}
-              onClick={() => handleConnect(wallet.name)}
-              disabled={!wallet.ready || isLoading}
-              className="w-full justify-start gap-4"
-            >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+        
+        <Tabs defaultValue="desktop" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="desktop">Desktop</TabsTrigger>
+            <TabsTrigger value="mobile">Mobile</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="desktop" className="mt-4">
+            <div className="grid gap-4">
+              {wallets.map((wallet) => (
+                <Button
+                  key={wallet.name}
+                  onClick={() => handleConnect(wallet.name)}
+                  disabled={!wallet.ready || isLoading}
+                  className="w-full justify-start gap-4"
+                >
+                  {isLoading && selectedWallet === wallet.name ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : wallet.name.toLowerCase() === 'walletconnect' ? (
+                    <Barcode className="h-6 w-6" />
+                  ) : (
+                    <img src={wallet.logo} alt={`${wallet.name} logo`} className="h-6 w-6" />
+                  )}
+                  {wallet.name}
+                  {!wallet.ready && " (not available)"}
+                </Button>
+              ))}
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="mobile" className="mt-4">
+            <div className="flex flex-col items-center justify-center space-y-4">
+              {showQRCode ? (
+                <div className="p-4 bg-gray-100 rounded-lg">
+                  <Barcode className="w-48 h-48" />
+                  <p className="text-center mt-2 text-sm text-gray-600">
+                    Scan with your wallet
+                  </p>
+                </div>
               ) : (
-                <img src={wallet.logo} alt={`${wallet.name} logo`} className="h-6 w-6" />
+                <div className="grid gap-4 w-full">
+                  {wallets.map((wallet) => (
+                    <Button
+                      key={wallet.name}
+                      onClick={() => handleConnect(wallet.name)}
+                      disabled={!wallet.ready || isLoading}
+                      className="w-full justify-start gap-4"
+                    >
+                      {isLoading && selectedWallet === wallet.name ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <img src={wallet.logo} alt={`${wallet.name} logo`} className="h-6 w-6" />
+                      )}
+                      {wallet.name}
+                    </Button>
+                  ))}
+                </div>
               )}
-              {wallet.name}
-              {!wallet.ready && " (not available)"}
-            </Button>
-          ))}
-        </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+
         {!wallets.some(wallet => wallet.ready) && (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
